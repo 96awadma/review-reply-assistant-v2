@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { getSessionUser } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
   title: "Review Reply Assistant v2",
@@ -7,11 +8,12 @@ export const metadata: Metadata = {
     "Professional MVP for managing Google Business Profile review replies.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const user = await getSessionUser();
   return (
     <html lang="en">
       <body className="min-h-full">
@@ -31,12 +33,21 @@ export default function RootLayout({
                 <a href="/health" className="hover:text-slate-900">
                   Health
                 </a>
-                <a
-                  href="/login"
-                  className="rounded-lg bg-brand-500 px-3 py-1.5 font-medium text-white transition hover:bg-brand-600"
-                >
-                  Sign in
-                </a>
+                {user ? (
+                  <a
+                    href="/dashboard"
+                    className="rounded-lg bg-brand-500 px-3 py-1.5 font-medium text-white transition hover:bg-brand-600"
+                  >
+                    Dashboard
+                  </a>
+                ) : (
+                  <a
+                    href="/login"
+                    className="rounded-lg bg-brand-500 px-3 py-1.5 font-medium text-white transition hover:bg-brand-600"
+                  >
+                    Sign in
+                  </a>
+                )}
               </nav>
             </div>
           </header>

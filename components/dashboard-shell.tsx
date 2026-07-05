@@ -4,7 +4,10 @@ type NavItem = { href: string; label: string };
 
 const NAV: NavItem[] = [
   { href: "/dashboard", label: "Dashboard" },
-  { href: "/dashboard/connect", label: "Connect Google" },
+  { href: "/dashboard/connect", label: "Connect" },
+  { href: "/dashboard/locations", label: "Locations" },
+  { href: "/dashboard/reviews", label: "Reviews" },
+  { href: "/dashboard/diagnostics", label: "Diagnostics" },
   { href: "/settings", label: "Settings" },
 ];
 

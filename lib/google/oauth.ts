@@ -71,6 +71,31 @@ export async function exchangeCodeForTokens(
   return (await res.json()) as GoogleTokenResponse;
 }
 
+export async function refreshAccessToken(
+  refreshToken: string,
+): Promise<{ access_token: string; expires_in: number; scope?: string }> {
+  const body = new URLSearchParams({
+    client_id: process.env.GOOGLE_CLIENT_ID as string,
+    client_secret: process.env.GOOGLE_CLIENT_SECRET as string,
+    refresh_token: refreshToken,
+    grant_type: "refresh_token",
+  });
+  const res = await fetch(GOOGLE_TOKEN_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body,
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`Token refresh failed (${res.status}): ${text.slice(0, 200)}`);
+  }
+  return (await res.json()) as {
+    access_token: string;
+    expires_in: number;
+    scope?: string;
+  };
+}
+
 /** Fetch the connected Google account's email. Returns null on any failure. */
 export async function fetchGoogleEmail(
   accessToken: string,
