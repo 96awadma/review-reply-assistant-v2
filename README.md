@@ -16,8 +16,8 @@ fallbacks, no raw JSON errors in the browser.
 | Phase | Scope | Status |
 |------:|-------|--------|
 | 0 | Fresh project setup + `/health` | ✅ done |
-| 1 | Deploy to Vercel (GitHub path) | ✅ **current** |
-| 2 | Supabase magic-link login | ⬜ |
+| 1 | Deploy to Vercel (GitHub path) | ✅ done |
+| 2 | Supabase magic-link login | ✅ **current** |
 | 3 | Google OAuth connection | ⬜ |
 | 4 | Verify Business Profile API access | ⬜ |
 | 5 | Real accounts & locations | ⬜ |
@@ -129,11 +129,55 @@ else stays server-side.
 
 ---
 
+## Supabase setup (Phase 2)
+
+Create a **fresh** Supabase project for v2 (don't reuse the old one).
+
+### 1. Create the project
+1. https://supabase.com/dashboard → **New project**.
+2. Name it e.g. `review-reply-assistant-v2`, pick a region, set a DB password.
+
+### 2. Run the schema
+Supabase Dashboard → **SQL Editor** → paste the contents of
+[`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql) → **Run**.
+(Safe to run now; it only references the built-in `auth.users`.)
+
+### 3. Get the keys
+**Project Settings → API**:
+- `Project URL` → `NEXT_PUBLIC_SUPABASE_URL`
+- `anon` `public` key → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `service_role` key → `SUPABASE_SERVICE_ROLE_KEY` (server-only, used from Phase 3)
+
+### 4. Configure Auth redirect URLs (critical for magic links)
+Supabase Dashboard → **Authentication → URL Configuration**:
+- **Site URL:** `https://review-reply-assistant-v2.vercel.app`
+- **Redirect URLs** (add both):
+  - `https://review-reply-assistant-v2.vercel.app/**`
+  - `http://localhost:3000/**`
+
+Magic links redirect to `/auth/callback`; these entries authorize that.
+
+### 5. Set env vars in both places
+- **Local:** put the three keys in `.env.local`.
+- **Vercel:** Settings → Environment Variables → add the same keys
+  (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+  `SUPABASE_SERVICE_ROLE_KEY`) for Production + Preview → **Redeploy**.
+
+### Verify
+- `/health` → Supabase URL + anon key show **yes**.
+- `/login` → shows the magic-link form (not the "not configured" notice).
+- Sign in → open the email link → lands on `/dashboard`.
+- `/debug/session` → **Logged in: yes** with your email.
+
+> **Auth model:** sessions are stored in cookies via `@supabase/ssr`, so server
+> routes can read them. Middleware runs **only** on `/dashboard` and `/settings`
+> (narrow matcher) to gate access and refresh tokens — deliberately avoiding the
+> auth rate-limit issue from v1.
+
 ## Database
 
 The initial schema lives at [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql).
-Run it in the Supabase SQL Editor (or via `supabase db push`) starting in
-Phase 2. Every table is scoped by `user_id` with Row Level Security enabled.
+Every table is scoped by `user_id` with Row Level Security enabled.
 
 ---
 
