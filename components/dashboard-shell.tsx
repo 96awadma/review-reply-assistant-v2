@@ -22,8 +22,8 @@ export function DashboardShell({
 }) {
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-5 py-3">
-        <nav className="flex items-center gap-1">
+      <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-2 py-2 sm:px-3">
+        <nav className="flex flex-1 items-center gap-1 overflow-x-auto">
           {NAV.map((item) => {
             const isActive = item.href === active;
             return (
@@ -31,9 +31,10 @@ export function DashboardShell({
                 key={item.href}
                 href={item.href}
                 className={
-                  isActive
-                    ? "rounded-lg bg-brand-50 px-3 py-1.5 text-sm font-medium text-brand-600"
-                    : "rounded-lg px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
+                  (isActive
+                    ? "bg-brand-50 text-brand-600"
+                    : "text-slate-600 hover:bg-slate-50") +
+                  " shrink-0 whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium"
                 }
               >
                 {item.label}
@@ -41,17 +42,17 @@ export function DashboardShell({
             );
           })}
         </nav>
-        <div className="flex items-center gap-3 text-sm">
-          <span className="hidden text-slate-500 sm:inline">{email}</span>
-          <form action="/auth/signout" method="post">
-            <button
-              type="submit"
-              className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-            >
-              Sign out
-            </button>
-          </form>
-        </div>
+        <span className="hidden shrink-0 text-xs text-slate-400 lg:block">
+          {email}
+        </span>
+        <form action="/auth/signout" method="post" className="shrink-0">
+          <button
+            type="submit"
+            className="rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+          >
+            Sign out
+          </button>
+        </form>
       </div>
 
       {children}
