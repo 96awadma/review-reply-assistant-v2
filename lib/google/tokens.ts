@@ -2,6 +2,11 @@ import { createClient } from "@/lib/supabase/server";
 import { decrypt, encrypt } from "@/lib/crypto";
 import { refreshAccessToken } from "@/lib/google/oauth";
 import { GoogleApiError } from "@/lib/google/api";
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+// The cron job passes a service-role client (no user session); request-scoped
+// callers omit it and get the cookie-based client.
+type Db = SupabaseClient;
 
 export type GoogleConnection = {
   google_email: string | null;
@@ -14,9 +19,10 @@ export type GoogleConnection = {
 
 export async function getConnection(
   userId: string,
+  db?: Db,
 ): Promise<GoogleConnection | null> {
   try {
-    const supabase = createClient();
+    const supabase = db ?? createClient();
     const { data, error } = await supabase
       .from("google_connections")
       .select(
@@ -35,8 +41,11 @@ export async function getConnection(
  * Returns a valid access token, refreshing it if it's expired or about to
  * expire. Persists the refreshed token. Throws a GoogleApiError on failure.
  */
-export async function getValidAccessToken(userId: string): Promise<string> {
-  const conn = await getConnection(userId);
+export async function getValidAccessToken(
+  userId: string,
+  db?: Db,
+): Promise<string> {
+  const conn = await getConnection(userId, db);
   if (!conn) {
     throw new GoogleApiError("not_connected", "Google is not connected.");
   }
@@ -64,7 +73,7 @@ export async function getValidAccessToken(userId: string): Promise<string> {
   ).toISOString();
 
   try {
-    const supabase = createClient();
+    const supabase = db ?? createClient();
     await supabase
       .from("google_connections")
       .update({

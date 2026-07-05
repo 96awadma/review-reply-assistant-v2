@@ -8,6 +8,7 @@ import {
   postReply,
   type ActionResult,
 } from "./actions";
+import { NotificationsButton } from "./notifications-button";
 
 export type ReviewRow = {
   google_review_id: string;
@@ -236,6 +237,10 @@ export function ReviewsBoard({
         >
           {pending ? "Syncing…" : "Sync reviews now"}
         </button>
+      </div>
+
+      <div className="rounded-xl border border-slate-200 bg-white px-5 py-3">
+        <NotificationsButton />
       </div>
 
       {msg && (

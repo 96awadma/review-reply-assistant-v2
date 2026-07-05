@@ -42,6 +42,12 @@ export function getEnvStatus(): EnvStatus[] {
       label: "Token encryption key",
       configured: isSet(process.env.TOKEN_ENCRYPTION_KEY),
     },
+    {
+      label: "Push notifications (VAPID)",
+      configured:
+        isSet(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY) &&
+        isSet(process.env.VAPID_PRIVATE_KEY),
+    },
   ];
 }
 
