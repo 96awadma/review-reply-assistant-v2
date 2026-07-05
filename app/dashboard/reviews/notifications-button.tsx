@@ -29,7 +29,20 @@ export function NotificationsButton() {
     }
     navigator.serviceWorker.ready
       .then((reg) => reg.pushManager.getSubscription())
-      .then((sub) => setState(sub ? "on" : "off"))
+      .then(async (sub) => {
+        if (!sub) {
+          setState("off");
+          return;
+        }
+        // Ensure the server has this subscription stored (idempotent). This
+        // self-heals if the DB table wasn't ready on the first subscribe.
+        await fetch("/api/push/subscribe", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ subscription: sub }),
+        }).catch(() => {});
+        setState("on");
+      })
       .catch(() => setState("off"));
   }, []);
 
