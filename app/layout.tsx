@@ -1,11 +1,22 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { getSessionUser } from "@/lib/supabase/server";
+import { PwaRegister } from "./pwa-register";
 
 export const metadata: Metadata = {
   title: "Review Reply Assistant v2",
   description:
     "Professional MVP for managing Google Business Profile review replies.",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "Reviews",
+    statusBarStyle: "default",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#2563eb",
 };
 
 export default async function RootLayout({
@@ -17,6 +28,7 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className="min-h-full">
+        <PwaRegister />
         <div className="flex min-h-screen flex-col">
           <header className="border-b border-slate-200 bg-white">
             <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
