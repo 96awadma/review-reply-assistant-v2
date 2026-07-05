@@ -17,8 +17,8 @@ fallbacks, no raw JSON errors in the browser.
 |------:|-------|--------|
 | 0 | Fresh project setup + `/health` | ✅ done |
 | 1 | Deploy to Vercel (GitHub path) | ✅ done |
-| 2 | Supabase magic-link login | ✅ **current** |
-| 3 | Google OAuth connection | ⬜ |
+| 2 | Supabase magic-link login | ✅ done |
+| 3 | Google OAuth connection | ✅ **current** |
 | 4 | Verify Business Profile API access | ⬜ |
 | 5 | Real accounts & locations | ⬜ |
 | 6 | Real reviews sync | ⬜ |
@@ -174,10 +174,50 @@ Magic links redirect to `/auth/callback`; these entries authorize that.
 > (narrow matcher) to gate access and refresh tokens — deliberately avoiding the
 > auth rate-limit issue from v1.
 
+## Google Cloud setup (Phase 3)
+
+### 1. Project + APIs
+1. https://console.cloud.google.com → create/select a project.
+2. **APIs & Services → Library** → enable:
+   - **Google Business Profile API** (and, if listed, the legacy *My Business Account Management API* / *My Business Business Information API*).
+
+### 2. OAuth consent screen
+1. **APIs & Services → OAuth consent screen** → User type **External** → create.
+2. Fill app name, support email, developer email.
+3. **Scopes:** add `.../auth/business.manage`.
+4. **Test users:** add the Google account that owns the business profile.
+5. Save (leave in **Testing** — no need to publish for the MVP).
+
+### 3. OAuth client (the client secret)
+1. **APIs & Services → Credentials → Create Credentials → OAuth client ID**.
+2. Application type: **Web application**.
+3. **Authorized redirect URIs** — add **both**:
+   - `https://review-reply-assistant-v2.vercel.app/api/auth/google/callback`
+   - `http://localhost:3000/api/auth/google/callback`
+4. Create. A dialog shows the **Client ID** and **Client secret** (`GOCSPX-…`).
+   **Copy the secret immediately into a note** — do not rely on the "Download JSON"
+   button. If you miss it, delete the client and make a new one.
+
+### 4. Env vars
+Set in `.env.local` (local) and Vercel (production):
+
+| Variable | Local value | Vercel value |
+|----------|-------------|--------------|
+| `GOOGLE_CLIENT_ID` | your client ID | same |
+| `GOOGLE_CLIENT_SECRET` | your `GOCSPX-…` secret | same |
+| `GOOGLE_REDIRECT_URI` | `http://localhost:3000/api/auth/google/callback` | `https://review-reply-assistant-v2.vercel.app/api/auth/google/callback` |
+| `TOKEN_ENCRYPTION_KEY` | (auto-generated in `.env.local`) | **copy the same value** from `.env.local` |
+
+> `GOOGLE_REDIRECT_URI` differs per environment; everything else is identical.
+> Tokens are encrypted with `TOKEN_ENCRYPTION_KEY` (AES-256-GCM) before storage,
+> so local and Vercel must share the **same** key.
+
 ## Database
 
 The initial schema lives at [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql).
-Every table is scoped by `user_id` with Row Level Security enabled.
+Every table is scoped by `user_id` with Row Level Security enabled. **Run it before
+Phase 3** — the OAuth flow stores state and tokens in `oauth_states` /
+`google_connections`.
 
 ---
 

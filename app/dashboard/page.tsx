@@ -29,11 +29,18 @@ export default async function DashboardPage() {
             Account: <span className="font-medium">{user.email}</span>
           </p>
         </div>
-        <div className="rounded-xl border border-dashed border-slate-300 bg-white p-5">
-          <h2 className="font-semibold text-slate-900">Coming next</h2>
+        <div className="rounded-xl border border-slate-200 bg-white p-5">
+          <h2 className="font-semibold text-slate-900">Connect Google</h2>
           <p className="mt-1 text-sm text-slate-600">
-            Phase 3 adds the Google connection screen. Nothing is connected yet.
+            Link your Google Business Profile to read reviews and post approved
+            replies.
           </p>
+          <a
+            href="/dashboard/connect"
+            className="mt-3 inline-flex items-center rounded-lg bg-brand-500 px-4 py-2 text-sm font-medium text-white transition hover:bg-brand-600"
+          >
+            Go to Connect →
+          </a>
         </div>
       </div>
     </DashboardShell>

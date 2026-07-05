@@ -38,6 +38,10 @@ export function getEnvStatus(): EnvStatus[] {
       label: "Google Redirect URI",
       configured: isSet(process.env.GOOGLE_REDIRECT_URI),
     },
+    {
+      label: "Token encryption key",
+      configured: isSet(process.env.TOKEN_ENCRYPTION_KEY),
+    },
   ];
 }
 
