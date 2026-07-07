@@ -16,6 +16,11 @@ export async function GET(request: Request) {
     return NextResponse.redirect(`${origin}/login?error=not_configured`);
   }
 
+  // Provider returned an error (e.g. the user cancelled Google sign-in).
+  if (searchParams.get("error")) {
+    return NextResponse.redirect(`${origin}/login?error=auth_failed`);
+  }
+
   if (!code) {
     return NextResponse.redirect(`${origin}/login?error=missing_code`);
   }
